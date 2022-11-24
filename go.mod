@@ -1,4 +1,4 @@
-module blackbox
+module github.com/Samar2170/Blackbox
 
 go 1.19
 

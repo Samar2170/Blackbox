@@ -12,6 +12,8 @@ import (
 	"github.com/golang-jwt/jwt"
 
 	"crypto/sha256"
+
+	"github.com/Samar2170/Blackbox/models"
 )
 
 type jwtCustomClaims struct {
@@ -23,7 +25,7 @@ type jwtCustomClaims struct {
 func login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	user, err := GetUserByUsername(username)
+	user, err := models.GetUserByUsername(username)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("User not found"))
@@ -53,13 +55,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 func signup(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	_, err := GetUserByUsername(username)
+	_, err := models.GetUserByUsername(username)
 	if err == nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("User already exists"))
 		return
 	}
-	user := User{
+	user := models.User{
 		Username: username,
 		Password: password,
 	}
@@ -101,7 +103,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error while parsing userId"))
 		return
 	}
-	user, err := GetUserById(uint(userIdInt))
+	user, err := models.GetUserById(uint(userIdInt))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Error while getting user"))
@@ -115,7 +117,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	fileHash.Write([]byte(filePath))
 	fileHashString := fmt.Sprintf("%x", fileHash.Sum(nil))
 
-	fm := FileMetaData{
+	fm := models.FileMetaData{
 		NewName:   fileName,
 		UserId:    uint(userIdInt),
 		OgName:    header.Filename,
@@ -126,7 +128,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	}
 	// fmt.Println(fm)
 
-	err = SaveFile(file, filePath)
+	err = models.SaveFile(file, filePath)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Error while saving file"))
@@ -164,14 +166,16 @@ func uploads(w http.ResponseWriter, r *http.Request) {
 	}
 	files := r.MultipartForm.File["files"]
 
-	SaveFiles(files, userIdInt)
+	models.SaveFiles(files, userIdInt)
+
+	w.Write([]byte("Files uploaded successfully"))
 
 }
 
 func downloadFile(w http.ResponseWriter, r *http.Request) {
 	urlSplit := strings.Split(r.URL.Path, "/")
 	fileHash := urlSplit[len(urlSplit)-1]
-	fmd, err := GetFileBySignedUrl(fileHash)
+	fmd, err := models.GetFileBySignedUrl(fileHash)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Couldnt find File"))

@@ -10,7 +10,7 @@ import (
 
 var Db *gorm.DB
 
-func connect() {
+func Connect() {
 	var err error
 	Db, err = gorm.Open(postgres.Open(DBURI), &gorm.Config{})
 	if err != nil {
@@ -33,14 +33,15 @@ type User struct {
 
 type FileMetaData struct {
 	*gorm.Model
-	UserId    uint
-	User      User `gorm:"foreignKey:UserId"`
-	OgName    string
-	NewName   string
-	Extension string
-	Size      uint // store in megabytes
-	Path      string
-	SignedUrl string `gorm:"uniqueIndex"`
+	UserId        uint
+	User          User `gorm:"foreignKey:UserId"`
+	OgName        string
+	NewName       string
+	Extension     string
+	Size          uint // store in megabytes
+	Path          string
+	SignedUrl     string `gorm:"uniqueIndex"`
+	ThumbnailPath string
 }
 
 func (u *User) Create() error {
@@ -51,6 +52,10 @@ func (u *User) CreateBucket() error {
 	err := CreateDirectoryForUser(u.Username)
 	if err != nil {
 		return err
+	}
+	err2 := CreateThumbnailsDirForUser(u.Username)
+	if err2 != nil {
+		return err2
 	}
 	u.bucketStatus = true
 	err = Db.Save(&u).Error

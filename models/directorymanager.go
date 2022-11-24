@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"log"
@@ -20,6 +21,13 @@ func CreateDirectoryForUser(username string) error {
 	// Create directory for user
 	if _, err := os.Stat(MAIN_DIR + "/" + username); os.IsNotExist(err) {
 		os.Mkdir(MAIN_DIR+"/"+username, 0755)
+	}
+	return nil
+}
+func CreateThumbnailsDirForUser(username string) error {
+	// Create directory for user
+	if _, err := os.Stat(MAIN_DIR + "/" + username + "/" + THUMBNAILS_DIR); os.IsNotExist(err) {
+		os.Mkdir(MAIN_DIR+"/"+username+"/"+THUMBNAILS_DIR, 0755)
 	}
 	return nil
 }
@@ -77,6 +85,9 @@ func SaveFiles(fhs []*multipart.FileHeader, userId int) error {
 			ogFileName, fileExtension := strings.Split(file.Filename, ".")[0], file.Filename[strings.LastIndex(file.Filename, ".")+1:]
 			fileName := fmt.Sprintf("%s_%s.%s", user.Username, ogFileName, fileExtension)
 			filePath := MAIN_DIR + "/" + user.Username + "/" + fileName
+			fileHash := sha256.New()
+			fileHash.Write([]byte(filePath))
+			fileHashString := fmt.Sprintf("%x", fileHash.Sum(nil))
 
 			r, w := io.Pipe()
 			go func() {
@@ -101,6 +112,8 @@ func SaveFiles(fhs []*multipart.FileHeader, userId int) error {
 				NewName:   fileName,
 				Extension: fileExtension,
 				Size:      uint(fileSizeinMB),
+				Path:      filePath,
+				SignedUrl: fileHashString,
 			}
 			err = fileMetaData.Create()
 			if err != nil {
