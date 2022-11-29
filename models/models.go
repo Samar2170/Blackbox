@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"errors"
@@ -33,8 +33,9 @@ type User struct {
 
 type FileMetaData struct {
 	*gorm.Model
+	ID            uint `gorm:"PrimaryIndex"`
 	UserId        uint
-	User          User `gorm:"foreignKey:UserId"`
+	User          User `gorm:"foreignKey:UserId;references:ID;"`
 	OgName        string
 	NewName       string
 	Extension     string
@@ -59,6 +60,11 @@ func (u *User) CreateBucket() error {
 	}
 	u.bucketStatus = true
 	err = Db.Save(&u).Error
+	return err
+}
+func (fmd *FileMetaData) SaveThumbnailPath(thumbnailPath string) error {
+	fmd.ThumbnailPath = thumbnailPath
+	err := Db.Save(&fmd).Error
 	return err
 }
 
@@ -94,4 +100,17 @@ func GetFileBySignedUrlUser(signedUrl string, userId uint) (FileMetaData, error)
 	var fm FileMetaData
 	err := Db.Where("signed_url = ? user_id = ?", signedUrl, userId).First(&fm).Error
 	return fm, err
+}
+
+func GetFileMetaDataById(id uint) (FileMetaData, error) {
+	var fm FileMetaData
+	err := Db.Where("id = ?", id).First(&fm).Error
+	return fm, err
+}
+
+func GetFileMetaDataWOThumbnails() ([]FileMetaData, error) {
+	var fmd []FileMetaData
+	err := Db.Where("thumbnail_path IS NULL").Find(&fmd).Error
+	return fmd, err
+
 }
