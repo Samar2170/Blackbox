@@ -1,0 +1,36 @@
+2022/12/03 02:54:45 jobs.go:16: open : no such file or directory
+2022/12/03 02:54:51 middleware.go:51: [::1]:51514 OPTIONS /login/
+2022/12/03 02:55:18 middleware.go:51: 127.0.0.1:55738 POST /login
+2022/12/03 02:55:38 middleware.go:51: 127.0.0.1:55738 POST /login/
+2022/12/03 02:56:34 main.go:52: Listening on port 8080
+2022/12/03 02:56:34 jobs.go:16: open : no such file or directory
+2022/12/03 03:01:18 main.go:52: Listening on port 8080
+2022/12/03 03:01:18 jobs.go:16: open : no such file or directory
+2022/12/03 03:05:16 main.go:52: Listening on port 8080
+2022/12/03 03:05:16 jobs.go:16: open : no such file or directory
+2022/12/03 03:05:19 api.go:30:  
+2022/12/03 03:05:34 api.go:30:  
+2022/12/03 03:15:46 api.go:30:  
+2022/12/03 03:17:49 api.go:30:  
+2022/12/03 03:19:43 main.go:52: Listening on port 8080
+2022/12/03 03:19:43 jobs.go:16: open : no such file or directory
+2022/12/03 03:19:46 api.go:28: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br] Accept-Language:[en-US,en;q=0.5] Access-Control-Request-Headers:[content-type] Access-Control-Request-Method:[POST] Connection:[keep-alive] Origin:[http://localhost:3000] Referer:[http://localhost:3000/] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[cors] Sec-Fetch-Site:[same-site] User-Agent:[Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0]]
+2022/12/03 03:19:46 api.go:29: {}
+2022/12/03 03:19:46 api.go:33:  
+2022/12/03 03:32:56 api.go:28: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br] Accept-Language:[en-US,en;q=0.5] Access-Control-Request-Headers:[content-type] Access-Control-Request-Method:[POST] Connection:[keep-alive] Origin:[http://localhost:3000] Referer:[http://localhost:3000/] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[cors] Sec-Fetch-Site:[same-site] User-Agent:[Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0]]
+2022/12/03 03:32:56 api.go:29: {}
+2022/12/03 03:32:56 api.go:33:  
+2022/12/03 03:34:00 api.go:28: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br] Accept-Language:[en-US,en;q=0.5] Access-Control-Request-Headers:[content-type] Access-Control-Request-Method:[POST] Connection:[keep-alive] Origin:[http://localhost:3000] Referer:[http://localhost:3000/] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[cors] Sec-Fetch-Site:[same-site] User-Agent:[Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0]]
+2022/12/03 03:34:00 api.go:29: {}
+2022/12/03 03:34:00 api.go:33:  
+2022/12/03 03:34:52 api.go:28: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br] Accept-Language:[en-US,en;q=0.5] Access-Control-Request-Headers:[content-type] Access-Control-Request-Method:[POST] Connection:[keep-alive] Origin:[http://localhost:3000] Referer:[http://localhost:3000/] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[cors] Sec-Fetch-Site:[same-site] User-Agent:[Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0]]
+2022/12/03 03:34:52 api.go:29: {}
+2022/12/03 03:34:52 api.go:33:  
+2022/12/03 03:35:19 api.go:28: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br] Accept-Language:[en-US,en;q=0.5] Access-Control-Request-Headers:[content-type] Access-Control-Request-Method:[POST] Connection:[keep-alive] Origin:[http://localhost:3000] Referer:[http://localhost:3000/] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[cors] Sec-Fetch-Site:[same-site] User-Agent:[Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0]]
+2022/12/03 03:35:19 api.go:29: {}
+2022/12/03 03:35:19 api.go:33:  
+2022/12/03 03:37:43 main.go:52: Listening on port 8080
+2022/12/03 03:37:43 jobs.go:16: open : no such file or directory
+2022/12/03 03:37:48 api.go:33: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br] Accept-Language:[en-US,en;q=0.5] Access-Control-Request-Headers:[content-type] Access-Control-Request-Method:[POST] Connection:[keep-alive] Origin:[http://localhost:3000] Referer:[http://localhost:3000/] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[cors] Sec-Fetch-Site:[same-site] User-Agent:[Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0]]
+2022/12/03 03:37:48 api.go:34: {}
+2022/12/03 03:37:48 api.go:38:  

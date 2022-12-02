@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,6 +24,7 @@ type jwtCustomClaims struct {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
+
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	user, err := models.GetUserByUsername(username)
@@ -49,7 +51,11 @@ func login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Error while signing token"))
 	}
-	w.Write([]byte(t))
+	respMap := map[string]string{
+		"access_token": t,
+		"username":     user.Username,
+	}
+	json.NewEncoder(w).Encode(respMap)
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +83,8 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error while creating bucket"))
 		return
 	}
-	w.Write([]byte("User created successfully"))
+	response := map[string]string{"status": "User created successfully"}
+	json.NewEncoder(w).Encode(response)
 }
 
 func test(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +153,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("File uploaded successfully. Can be accessed at " + fileHashString))
+	response := map[string]string{"status": "File uploaded successfully"}
+	json.NewEncoder(w).Encode(response)
 
 }
 
@@ -168,7 +176,8 @@ func uploads(w http.ResponseWriter, r *http.Request) {
 
 	models.SaveFiles(files, userIdInt)
 
-	w.Write([]byte("Files uploaded successfully"))
+	response := map[string]string{"status": "Files uploaded successfully"}
+	json.NewEncoder(w).Encode(response)
 
 }
 
@@ -198,4 +207,22 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 	io.Copy(w, reader)
 
+}
+
+func viewFiles(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("userId")
+	userIdInt, err := strconv.ParseInt(userId, 0, 32)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("User Id not Valid"))
+		return
+	}
+	fmds, err := models.GetFileMetaDataByUserID(uint(userIdInt))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("User Id not Valid"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(fmds)
 }

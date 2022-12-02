@@ -44,3 +44,20 @@ func checkAuth(next http.Handler) http.Handler {
 
 	})
 }
+
+type Logger struct {
+	Handler http.Handler
+}
+
+func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Method, r.URL.Path)
+	log.Println(r.Header)
+	log.Println(r.Body)
+	// print request size in Kilobytes
+	log.Println(r.ContentLength / 1024)
+	l.Handler.ServeHTTP(w, r)
+}
+
+func NewLogger(handlerToWrap http.Handler) *Logger {
+	return &Logger{handlerToWrap}
+}

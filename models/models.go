@@ -54,10 +54,6 @@ func (u *User) CreateBucket() error {
 	if err != nil {
 		return err
 	}
-	err2 := CreateThumbnailsDirForUser(u.Username)
-	if err2 != nil {
-		return err2
-	}
 	u.bucketStatus = true
 	err = Db.Save(&u).Error
 	return err
@@ -113,4 +109,9 @@ func GetFileMetaDataWOThumbnails() ([]FileMetaData, error) {
 	err := Db.Where("thumbnail_path IS NULL").Find(&fmd).Error
 	return fmd, err
 
+}
+func GetFileMetaDataByUserID(userId uint) ([]FileMetaData, error) {
+	var fmds []FileMetaData
+	err := Db.Where("user_id = ?", userId).Find(&fmds).Error
+	return fmds, err
 }

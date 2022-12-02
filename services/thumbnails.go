@@ -33,13 +33,12 @@ func CreateThumbnail(fmdId uint) error {
 
 	// paste thumbnails into the new image side by side
 	dst = imaging.Paste(dst, thumbnail, image.Pt(0, 0))
-	user, err := models.GetUserById(fmd.UserId)
 	if err != nil {
 		return err
 	}
 	// save the resulting image as JPEG
 	fmtId := fmt.Sprintf("%d", fmdId)
-	thumbnailPath := MAIN_DIR + "/" + user.Username + "/thumbnails/" + fmtId + ".png"
+	thumbnailPath := "thumbnails/" + fmtId + ".png"
 	err = imaging.Save(dst, thumbnailPath)
 	if err != nil {
 		return err
@@ -48,7 +47,5 @@ func CreateThumbnail(fmdId uint) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
-
 }

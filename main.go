@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"sync"
 
@@ -30,6 +31,9 @@ func main() {
 }
 
 func runServer() {
+	// openLogFile(logPath)
+	// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/login", login)
 	mux.HandleFunc("/signup", signup)
@@ -42,5 +46,11 @@ func runServer() {
 	mux.Handle("/uploads", checkAuth(uploadsHandler))
 	downloadFileHandler := http.HandlerFunc(downloadFile)
 	mux.Handle("/download", checkAuth(downloadFileHandler))
-	http.ListenAndServe(":8080", mux)
+	viewFilesHandler := http.HandlerFunc(viewFiles)
+	mux.Handle("/view-files", checkAuth(viewFilesHandler))
+
+	loggedMux := NewLogger(mux)
+
+	log.Println("Listening on port 8080")
+	http.ListenAndServe(":8080", loggedMux)
 }

@@ -24,13 +24,6 @@ func CreateDirectoryForUser(username string) error {
 	}
 	return nil
 }
-func CreateThumbnailsDirForUser(username string) error {
-	// Create directory for user
-	if _, err := os.Stat(MAIN_DIR + "/" + username + "/" + THUMBNAILS_DIR); os.IsNotExist(err) {
-		os.Mkdir(MAIN_DIR+"/"+username+"/"+THUMBNAILS_DIR, 0755)
-	}
-	return nil
-}
 
 func CheckBadDirectories() {
 	set := make(map[string]struct{})
