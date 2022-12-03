@@ -22,20 +22,44 @@ type jwtCustomClaims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
 }
+type loginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func returnJson(w http.ResponseWriter, data interface{}) {
+	jData, err := json.Marshal(data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error while encoding json"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jData)
+}
 
 func login(w http.ResponseWriter, r *http.Request) {
+	var lr loginRequest
+	data, _ := io.ReadAll(r.Body)
+	err := json.Unmarshal(data, &lr)
+	if err != nil {
+		returnJson(w, map[string]string{"status": "Error while parsing request"})
+		return
+	}
+	username, password := lr.Username, lr.Password
 
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	if username == "" || password == "" {
+		returnJson(w, map[string]string{"status": "Username or password cannot be empty"})
+		return
+	}
+
 	user, err := models.GetUserByUsername(username)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("User not found"))
+		returnJson(w, map[string]string{"status": "User does not exist"})
 		return
 	}
 	if user.Password != password {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Incorrect password"))
+		returnJson(w, map[string]string{"status": "Incorrect password"})
 		return
 	}
 	claims := &jwtCustomClaims{
@@ -48,14 +72,14 @@ func login(w http.ResponseWriter, r *http.Request) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte("secret"))
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while signing token"))
+		returnJson(w, map[string]string{"status": "Error while signing token"})
+		return
 	}
 	respMap := map[string]string{
 		"access_token": t,
 		"username":     user.Username,
 	}
-	json.NewEncoder(w).Encode(respMap)
+	returnJson(w, respMap)
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
@@ -63,8 +87,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	_, err := models.GetUserByUsername(username)
 	if err == nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("User already exists"))
+		returnJson(w, map[string]string{"status": "User already exists"})
 		return
 	}
 	user := models.User{
@@ -73,14 +96,12 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	}
 	err = user.Create()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while creating user"))
+		returnJson(w, map[string]string{"status": "Error while creating user"})
 		return
 	}
 	err2 := user.CreateBucket()
 	if err2 != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while creating bucket"))
+		returnJson(w, map[string]string{"status": "Error while creating bucket"})
 		return
 	}
 	response := map[string]string{"status": "User created successfully"}
@@ -95,8 +116,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("file")
 	userId := r.Header.Get("userId")
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while reading file"))
+		returnJson(w, map[string]string{"status": "Error while fetching file"})
 		return
 	}
 
@@ -106,14 +126,12 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(header.Header)
 	userIdInt, err := strconv.Atoi(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while parsing userId"))
+		returnJson(w, map[string]string{"status": "Error while parsing userId"})
 		return
 	}
 	user, err := models.GetUserById(uint(userIdInt))
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while getting user"))
+		returnJson(w, map[string]string{"status": "Error while fetching user"})
 		return
 	}
 	fileSizeinMB := header.Size / (1024 * 1024)
@@ -137,24 +155,20 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 	err = models.SaveFile(file, filePath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while saving file"))
+		returnJson(w, map[string]string{"status": "Error while saving file"})
 		return
 	}
 	err = fm.Create()
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate") {
-			w.WriteHeader(http.StatusAccepted)
-			w.Write([]byte("File already exists and overwritten."))
+			returnJson(w, map[string]string{"status": "File already exists"})
 			return
 		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while saving file metadata"))
+		returnJson(w, map[string]string{"status": "Error while saving file metadata"})
 		return
 	}
 
-	response := map[string]string{"status": "File uploaded successfully"}
-	json.NewEncoder(w).Encode(response)
+	returnJson(w, map[string]string{"status": "File uploaded successfully"})
 
 }
 
@@ -162,23 +176,19 @@ func uploads(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("userId")
 	userIdInt, err := strconv.Atoi(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while parsing userId"))
+		returnJson(w, map[string]string{"status": "Error while parsing userId"})
 		return
 	}
 	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error while parsing form"))
+		returnJson(w, map[string]string{"status": "Error while parsing form"})
 		return
 	}
 	files := r.MultipartForm.File["files"]
 
 	models.SaveFiles(files, userIdInt)
 
-	response := map[string]string{"status": "Files uploaded successfully"}
-	json.NewEncoder(w).Encode(response)
-
+	returnJson(w, map[string]string{"status": "Files uploaded successfully"})
 }
 
 func downloadFile(w http.ResponseWriter, r *http.Request) {
@@ -186,14 +196,12 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 	fileHash := urlSplit[len(urlSplit)-1]
 	fmd, err := models.GetFileBySignedUrl(fileHash)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Couldnt find File"))
+		returnJson(w, map[string]string{"status": "Error while fetching file"})
 		return
 	}
 	file, err := os.Open(fmd.Path)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("File Not Found"))
+		returnJson(w, map[string]string{"status": "Error while opening file"})
 		return
 	}
 	defer file.Close()
@@ -213,16 +221,13 @@ func viewFiles(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("userId")
 	userIdInt, err := strconv.ParseInt(userId, 0, 32)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("User Id not Valid"))
+		returnJson(w, map[string]string{"status": "Error while parsing userId"})
 		return
 	}
 	fmds, err := models.GetFileMetaDataByUserID(uint(userIdInt))
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("User Id not Valid"))
+		returnJson(w, map[string]string{"status": "Error while fetching files"})
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(fmds)
+	returnJson(w, fmds)
 }
