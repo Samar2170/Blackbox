@@ -186,8 +186,11 @@ func uploads(w http.ResponseWriter, r *http.Request) {
 	}
 	files := r.MultipartForm.File["files"]
 
-	models.SaveFiles(files, userIdInt)
+	err = models.SaveFiles(files, userIdInt)
 
+	if err != nil {
+		returnJson(w, map[string]string{"status": "Error while Saving files"})
+	}
 	returnJson(w, map[string]string{"status": "Files uploaded successfully"})
 }
 
@@ -217,17 +220,46 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// func viewFiles(w http.ResponseWriter, r *http.Request) {
+// 	userId := r.Header.Get("userId")
+// 	userIdInt, err := strconv.ParseInt(userId, 0, 32)
+// 	if err != nil {
+// 		returnJson(w, map[string]string{"status": "Error while parsing userId"})
+// 		return
+// 	}
+// 	fmds, err := models.GetFileMetaDataByUserID(uint(userIdInt))
+// 	if err != nil {
+// 		returnJson(w, map[string]string{"status": "Error while fetching files"})
+// 		return
+// 	}
+// 	returnJson(w, fmds)
+// }
+
 func viewFiles(w http.ResponseWriter, r *http.Request) {
+	urlQuery := r.URL.Query()
+	page := urlQuery.Get("page")
+
 	userId := r.Header.Get("userId")
 	userIdInt, err := strconv.ParseInt(userId, 0, 32)
 	if err != nil {
 		returnJson(w, map[string]string{"status": "Error while parsing userId"})
 		return
 	}
-	fmds, err := models.GetFileMetaDataByUserID(uint(userIdInt))
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		returnJson(w, map[string]string{"status": "Error while parsing page"})
+		return
+	}
+	pagination := models.Pagination{
+		Page: pageInt,
+	}
+	pages, fmds, err := models.GetFilesDataByUserIdAdvanced(uint(userIdInt), pagination)
+
 	if err != nil {
 		returnJson(w, map[string]string{"status": "Error while fetching files"})
 		return
 	}
-	returnJson(w, fmds)
+
+	pages.Rows = fmds
+	returnJson(w, pages)
 }

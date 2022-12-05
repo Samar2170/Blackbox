@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Samar2170/Blackbox/models"
+	"github.com/rs/cors"
 )
 
 func init() {
@@ -51,6 +52,17 @@ func runServer() {
 
 	loggedMux := NewLogger(mux)
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"*"},
+		// Enable Debugging for testing, consider disabling in production
+		Debug: true,
+	})
+
+	// Insert the middleware
+	// handler := cors.Default().Handler(loggedMux)
+	handler := c.Handler(loggedMux)
 	log.Println("Listening on port 8080")
-	http.ListenAndServe(":8080", loggedMux)
+	http.ListenAndServe(":8080", handler)
 }
