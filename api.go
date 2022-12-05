@@ -239,6 +239,9 @@ func viewFiles(w http.ResponseWriter, r *http.Request) {
 	urlQuery := r.URL.Query()
 	page := urlQuery.Get("page")
 
+	if page == "" {
+		page = "1"
+	}
 	userId := r.Header.Get("userId")
 	userIdInt, err := strconv.ParseInt(userId, 0, 32)
 	if err != nil {
